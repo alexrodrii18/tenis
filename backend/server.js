@@ -28,7 +28,7 @@ db.connect((err) => {
 
 // Importar rutas
 const jugadoresRoutes = require("./routes/jugadores");
-app.use("/api/jugadores", jugadoresRoutes);
+app.use("/jugadores", jugadoresRoutes);
 
 // Ruta principal
 app.get("/", (req, res) => {

@@ -56,26 +56,4 @@ router.delete("/:id", (req, res) => {
   });
 });
 
-//login
-// Verificar login
-router.post("/login", (req, res) => {
-  const { usuario, password } = req.body;
-
-  // Aquí deberías usar una tabla con contraseñas, o al menos simularlo si no usas aún autenticación real
-  db.query("SELECT * FROM usuarios WHERE usuario = ?", [usuario], (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (results.length === 0) return res.status(404).json({ error: "Usuario no encontrado" });
-
-    const user = results[0];
-
-    // Aquí normalmente se compara el password con bcrypt. Por simplicidad:
-    if (user.password !== password) {
-      return res.status(401).json({ error: "Contraseña incorrecta" });
-    }
-
-    res.json({ message: "Login exitoso", user });
-  });
-});
-
-
 module.exports = router;

@@ -1,10 +1,11 @@
 <template>
-<login/>
+<admin/>
 </template>
 
 <script setup>
-import login from '@/components/login.vue'; 
+import admin from "../components/admin.vue"; 
 </script>
 
 <style scoped>
+
 </style>

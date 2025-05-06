@@ -23,6 +23,9 @@ app.use(express.json());
 const usuariosRoutes = require("./routes/usuarios");
 app.use("/api/usuarios", usuariosRoutes);
 
+const emparejamientosRoutes = require("./routes/emparejamientos");
+app.use("/api/emparejamientos", emparejamientosRoutes);
+
 // Conexión a la base de datos MySQL
 const db = mysql.createConnection({
   host: process.env.DB_HOST || "localhost",

@@ -4,7 +4,7 @@
       <input v-model="nombre" placeholder="Nombre" required />
       <input v-model="usuario" placeholder="Usuario" required />
       <input v-model="password" placeholder="Contraseña" required />
-      <input v-model="division_id" placeholder="ID de división" required />
+      <input v-model="division_id" placeholder="División" required />
       <button type="submit">Añadir</button>
     </form>
   </template>

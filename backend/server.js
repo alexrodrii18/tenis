@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");  // Asegúrate de haber instalado 'cors' con 'npm install cors'
-const mysql = require("mysql2");
+const pool = require("./db");
 require("dotenv").config();
 
 const app = express();
@@ -26,21 +26,11 @@ app.use("/api/usuarios", usuariosRoutes);
 const emparejamientosRoutes = require("./routes/emparejamientos");
 app.use("/api/emparejamientos", emparejamientosRoutes);
 
-// Conexión a la base de datos MySQL
-const db = mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",
-  database: process.env.DB_NAME || "gestion-tenis",
-});
+const reservasRoutes = require('./routes/reservas')
+app.use('/api/reservas', reservasRoutes)
 
-db.connect((err) => {
-  if (err) {
-    console.error("❌ Error conectando a la base de datos:", err);
-  } else {
-    console.log("✅ Conectado a la base de datos MySQL");
-  }
-});
+
+
 
 // Rutas adicionales (por ejemplo, jugadores)
 const jugadoresRoutes = require("./routes/jugadores");

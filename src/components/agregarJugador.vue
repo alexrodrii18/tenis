@@ -22,7 +22,7 @@
   
   const agregarJugador = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/jugadores", {
+      const response = await axios.post("http://localhost:3000/api/jugadores", {
         nombre: nombre.value,
         usuario: usuario.value,
         password: password.value,

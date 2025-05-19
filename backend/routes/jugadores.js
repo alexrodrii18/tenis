@@ -1,59 +1,100 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db"); // Importar la conexión a MySQL
+const db = require("../db"); // conexión promisificada (mysql2/promise)
+
+
 
 // Obtener todos los jugadores
-router.get("/", (req, res) => {
-  db.query("SELECT * FROM usuarios", (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
+router.get("/", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM usuarios");
     res.json(results);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Obtener un jugador por ID
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  db.query("SELECT * FROM usuarios WHERE id = ?", [id], (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await db.query("SELECT * FROM usuarios WHERE id = ?", [id]);
+
     if (result.length === 0) return res.status(404).json({ error: "Jugador no encontrado" });
+
     res.json(result[0]);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Crear un nuevo jugador
-router.post("/", (req, res) => {
-  const { nombre, usuario, division_id } = req.body;
-  db.query(
-    "INSERT INTO usuarios (nombre, usuario, division_id) VALUES (?, ?, ?)",
-    [nombre, usuario, division_id],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: "Jugador creado con éxito", id: result.insertId });
+router.post("/", async (req, res) => {
+  try {
+    const { nombre, usuario, division_id } = req.body;
+    const [result] = await db.query(
+      "INSERT INTO usuarios (nombre, usuario, division_id) VALUES (?, ?, ?)",
+      [nombre, usuario, division_id]
+    );
+
+    res.json({ message: "Jugador creado con éxito", id: result.insertId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/registro', async (req, res) => {
+  try {
+    const { nombre, usuario, password, division, rol } = req.body;
+
+    if (!nombre || !usuario || !password || !division || !rol) {
+      return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
-  );
+
+    const [existingUser] = await db.query('SELECT * FROM usuarios WHERE usuario = ?', [usuario]);
+    if (existingUser.length > 0) {
+      return res.status(409).json({ error: 'El usuario ya existe' });
+    }
+
+// Insertar usuario en BD sin hash
+const [result] = await db.query(
+  'INSERT INTO usuarios (nombre, usuario, password, division_id, rol) VALUES (?, ?, ?, ?, ?)',
+  [nombre, usuario, password, division, rol]
+);
+
+    res.json({ message: 'Usuario registrado con éxito', id: result.insertId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al registrar usuario' });
+  }
 });
 
 // Actualizar datos de un jugador
-router.put("/:id", (req, res) => {
-  const { id } = req.params;
-  const { nombre, usuario, division_id } = req.body;
-  db.query(
-    "UPDATE usuarios SET nombre = ?, usuario = ?, division_id = ? WHERE id = ?",
-    [nombre, usuario, division_id, id],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: "Jugador actualizado con éxito" });
-    }
-  );
+router.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, usuario, division_id } = req.body;
+
+    await db.query(
+      "UPDATE usuarios SET nombre = ?, usuario = ?, division_id = ? WHERE id = ?",
+      [nombre, usuario, division_id, id]
+    );
+
+    res.json({ message: "Jugador actualizado con éxito" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Eliminar un jugador
-router.delete("/:id", (req, res) => {
-  const { id } = req.params;
-  db.query("DELETE FROM usuarios WHERE id = ?", [id], (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.query("DELETE FROM usuarios WHERE id = ?", [id]);
     res.json({ message: "Jugador eliminado correctamente" });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

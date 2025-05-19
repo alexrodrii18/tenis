@@ -1,22 +1,13 @@
-const mysql = require("mysql2");
-require("dotenv").config();
+const mysql = require("mysql2/promise");
 
-// Configuración de la conexión a la base de datos
-const db = mysql.createConnection({
+const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",
+  password: process.env.DB_PASS || "root",
   database: process.env.DB_NAME || "gestion_tenis",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-// Conectar a la base de datos
-db.connect((err) => {
-  if (err) {
-    console.error("❌ Error conectando a la base de datos:", err);
-  } else {
-    console.log("✅ Conectado a la base de datos MySQL");
-  }
-});
-
-
-module.exports = db;
+module.exports = pool;

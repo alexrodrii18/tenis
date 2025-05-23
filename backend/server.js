@@ -1,7 +1,7 @@
-const express = require("express");
-const cors = require("cors");  // Asegúrate de haber instalado 'cors' con 'npm install cors'
-const pool = require("./db");
 require("dotenv").config();
+const express = require("express");
+const cors = require("cors"); 
+const pool = require("./db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,7 +34,7 @@ app.use('/api/reservas', reservasRoutes)
 
 // Rutas adicionales (por ejemplo, jugadores)
 const jugadoresRoutes = require("./routes/jugadores");
-app.use("/jugadores", jugadoresRoutes);
+app.use("/api/jugadores", jugadoresRoutes);
 
 // Ruta principal de prueba
 app.get("/", (req, res) => {

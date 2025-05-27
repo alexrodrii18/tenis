@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 // Configuración de CORS para permitir solicitudes desde localhost:5173 (tu frontend Vue)
 const corsOptions = {
   origin: "http://localhost:5173",  // Permite solicitudes desde el frontend
-  methods: ["GET", "POST"],        // Permite métodos GET y POST
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"] // Permite el encabezado Content-Type
 };
 
@@ -30,14 +30,11 @@ const reservasRoutes = require('./routes/reservas')
 app.use('/api/reservas', reservasRoutes)
 
 
-
-
-// Rutas adicionales (por ejemplo, jugadores)
 const jugadoresRoutes = require("./routes/jugadores");
 app.use("/api/jugadores", jugadoresRoutes);
 
-// Ruta principal de prueba
-app.get("/", (req, res) => {
+
+app.get("/", (res) => {
   res.send("Servidor funcionando correctamente");
 });
 

@@ -2,13 +2,15 @@
 
 const express = require("express");
 const router = express.Router();
-const db = require("../db"); // conexión promisificada
+const db = require("../db");
 
-// Guardar nueva reserva (esto lo veremos después, pero es importante)
+
 router.post('/', async (req, res) => {
-  const { dia, hora, usuario_id, numero_pista } = req.body; // <--- RECIBE numero_pista
+  const { dia, hora, usuario_id, numero_pista } = req.body;
 
-  if (!dia || !hora || !usuario_id || !numero_pista) { // <--- VALIDA numero_pista
+  console.log('Datos recibidos:', req.body); // <-- importante para depurar
+
+  if (!dia || !hora || !usuario_id || !numero_pista) { 
     return res.status(400).json({ message: 'Faltan datos (día, hora, usuario_id o número de pista)' });
   }
 
@@ -19,7 +21,7 @@ router.post('/', async (req, res) => {
 
   try {
     const [existingReservations] = await db.query(
-      'SELECT id FROM reservas WHERE dia = ? AND hora = ? AND numero_pista = ?', // <--- USA numero_pista
+      'SELECT id FROM reservas WHERE dia = ? AND hora = ? AND numero_pista = ?', 
       [dia, hora, pistaNum]
     );
 
@@ -27,16 +29,20 @@ router.post('/', async (req, res) => {
       return res.status(409).json({ message: 'Este horario y pista ya están reservados.' });
     }
 
+    // CORREGIDO: insertar con valores
     await db.query(
-      'INSERT INTO reservas (dia, hora, usuario_id, numero_pista) VALUES (?, ?, ?, ?)', // <--- USA numero_pista
+      'INSERT INTO reservas (dia, hora, usuario_id, numero_pista) VALUES (?, ?, ?, ?)',
       [dia, hora, usuario_id, pistaNum]
     );
+
     res.status(201).json({ message: 'Reserva guardada con éxito' });
   } catch (error) {
-    console.error('Error al guardar la reserva:', error);
+    console.error('Error al guardar la reserva:', error.message);
     res.status(500).json({ message: 'Error interno al guardar la reserva' });
   }
 });
+
+
 
 // Obtener todas las reservas
 router.get("/", async (req, res) => {

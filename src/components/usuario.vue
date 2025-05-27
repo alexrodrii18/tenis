@@ -57,18 +57,40 @@
         </table>
       </div>
     </div>
+
+
+    <div class="content-card">
+    <h1>Cambiar contraseña</h1>
+    <div class="form-group">
+      <label for="contrasenaActual">Contraseña actual:</label>
+      <input type="password" id="contrasenaActual" v-model="contrasenaActual" />
+    </div>
+
+    <div class="form-group">
+      <label for="nuevaContrasena">Nueva contraseña:</label>
+      <input type="password" id="nuevaContrasena" v-model="nuevaContrasena" />
+    </div>
+
+    <button @click="cambiarContrasena">Actualizar contraseña</button>
   </div>
+  </div>
+
+
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { toast } from 'vue3-toastify';
+
+
 
 const router = useRouter(); // Movido aquí arriba para consistencia
 
 const reservas = ref([]);
 const nombreUsuario = ref()
+
 
 // Refs para el formulario de reserva
 const horariosDisponibles = ref([
@@ -79,13 +101,13 @@ const horariosDisponibles = ref([
   "19:30:00",
 ]);
 const diasDisponibles = ref(["Viernes", "Sábado", "Domingo"]);
-const diaSeleccionado = ref(""); // Debería ser null si usas la opción disabled con :value="null"
-const horarioSeleccionado = ref(""); // Debería ser null si usas la opción disabled con :value="null"
+const diaSeleccionado = ref(""); 
+const horarioSeleccionado = ref(""); 
 
-// --- Refs para Pistas (ya las tenías en tu código pegado) ---
+
 const pistasDisponibles = ref([1,2,3]);
 const pistaSeleccionada = ref(null);
-// --- Fin Refs para Pistas ---
+
 
 
 onMounted(async () => { // Hacemos onMounted async ya que llama a mostrarReservas que es async
@@ -100,34 +122,32 @@ onMounted(async () => { // Hacemos onMounted async ya que llama a mostrarReserva
 const mostrarReservas = async () => {
   try {
     const response = await axios.get("http://localhost:3000/api/reservas");
-    reservas.value = response.data; // Asumimos que response.data ahora incluye numero_pista
+    reservas.value = response.data; 
   } catch (error) {
-    alert("Error al cargar reservas: " + error.message);
-    // Considera también loguear el error en la consola para más detalles
+    toast.error("Error al cargar reservas: " + error.message);
     console.error("Error al cargar reservas:", error.response || error);
   }
 };
 
-// Ya tienes un onMounted que llama a mostrarReservas, no necesitas un segundo onMounted(mostrarReservas)
 
 const cerrarSesion = () => {
-  localStorage.removeItem('userId'); // Es buena práctica borrar el userId al cerrar sesión
+  localStorage.removeItem('userId'); 
   localStorage.removeItem('nombreUsuario');
   router.push("/");
-  alert("Sesión cerrada correctamente");
+  toast.success("Sesión cerrada correctamente");
 };
 
 
 const guardarDisponibilidad = async () => {
-  // Validar que todos los campos estén seleccionados
+
   if (!diaSeleccionado.value || !horarioSeleccionado.value || !pistaSeleccionada.value) {
-    alert("Por favor, completa todos los campos (día, hora y pista).");
+    toast.error("Por favor, completa todos los campos (día, hora y pista).");
     return;
   }
 
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    alert("Error: No se pudo identificar al usuario. Por favor, inicia sesión de nuevo.");
+    toast.error("Error: No se pudo identificar al usuario. Por favor, inicia sesión de nuevo.");
     return;
   }
 
@@ -139,19 +159,20 @@ const guardarDisponibilidad = async () => {
       numero_pista: pistaSeleccionada.value 
     });
 
-    alert("Reserva guardada con éxito.");
+
+    toast.success("Reserva guardada con éxito.");
     
     // Limpiar campos después de guardar
-    diaSeleccionado.value = ""; // O null si la opción disabled es :value="null"
-    horarioSeleccionado.value = ""; // O null
+    diaSeleccionado.value = ""; 
+    horarioSeleccionado.value = ""; 
     pistaSeleccionada.value = null; 
     
     await mostrarReservas(); // Actualizar la lista de reservas
   } catch (error) {
     if (error.response && error.response.status === 409) {
-      alert(error.response.data.message || "Este horario y pista ya están reservados.");
+      toast.error(error.response.data.message || "Este horario y pista ya están reservados.");
     } else {
-      alert("Error al guardar reserva: " + (error.response?.data?.message || error.message));
+      toast.error("Error al guardar reserva: " + (error.response?.data?.message || error.message));
       console.error("Error al guardar reserva:", error.response || error);
     }
   }
@@ -167,13 +188,38 @@ const formatHora = (hora) => {
     return hora; // Devolver la hora original si hay error
   }
 };
+
+
+
+const cambiarContrasena = async () => {
+  const userId = localStorage.getItem('userId');
+
+  if (!contrasenaActual.value || !nuevaContrasena.value) {
+    toast.error("Por favor completa ambos campos.");
+    return;
+  }
+
+  try {
+    await axios.put(`http://localhost:3000/api/usuarios/${userId}/contrasena`, {
+      actual: contrasenaActual.value,
+      nueva: nuevaContrasena.value,
+    });
+
+    toast.success("Contraseña actualizada correctamente.");
+    contrasenaActual.value = "";
+    nuevaContrasena.value = "";
+  } catch (error) {
+    toast.error("Error al cambiar la contraseña: " + (error.response?.data?.message || error.message));
+    console.error("Error cambiando contraseña:", error);
+  }
+};
 </script>
 
 <style scoped>
 h1 {
-  color: blue; /* Azul como en el original */
+  color: blue; 
   text-align: center;
-  margin-top: 20px; /* Reducido un poco ya que está dentro de una tarjeta */
+  margin-top: 20px; 
   margin-bottom: 30px;
 }
 
@@ -181,34 +227,31 @@ h1:hover {
   color: red;
   cursor: pointer;
 }
-
-/* Estilo para el contenedor principal, similar a login_contenedor */
 .vista-usuario-contenedor {
-  background-image: url("/fondo.jpeg"); /* Asegúrate que esta ruta es correcta */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  min-height: 100vh; /* Usar min-height para asegurar que cubra la pantalla pero pueda crecer */
+  min-height: 100vh; 
   width: 100vw;
   display: flex;
-  flex-direction: column; /* Para apilar las tarjetas verticalmente */
-  justify-content: flex-start; /* Alinea las tarjetas arriba */
+  flex-direction: column; 
+  justify-content: flex-start;
   align-items: center;
-  gap: 2rem; /* Espacio entre las tarjetas */
-  padding: 2rem; /* Espacio alrededor del contenido */
-  box-sizing: border-box; /* Para que el padding no aumente el tamaño total */
+  gap: 2rem; 
+  padding: 2rem; 
+  box-sizing: border-box; 
 }
 
-/* Estilo para las "tarjetas" de contenido, similar a los 'form' del original */
+
 .content-card {
-  background: rgba(255, 255, 255, 0.9); /* Un poco más opaco para legibilidad */
+  background: rgba(255, 255, 255, 0.9); 
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 0 15px rgba(0,0,0,0.35);
   text-align: center;
   width: 100%;
-  max-width: 700px; /* Ancho máximo para las tarjetas */
-  margin-bottom: 1rem; /* Espacio si no se usa flex-gap */
+  max-width: 700px; 
+  margin-bottom: 1rem; 
 }
 
 .form-group {
@@ -225,11 +268,11 @@ label {
 
 select {
   display: block;
-  margin: 0 auto 15px auto; /* Centrado, con margen inferior */
+  margin: 0 auto 15px auto; 
   padding: 10px;
   font-size: 16px;
-  width: 80%; /* Ancho relativo a la tarjeta */
-  max-width: 300px; /* Ancho máximo para los selects */
+  width: 80%; 
+  max-width: 300px; 
   border: 1px solid #ccc;
   border-radius: 5px;
   box-sizing: border-box;
@@ -237,15 +280,15 @@ select {
 
 select:focus {
   outline: none;
-  border: 2px solid #007BFF; /* Color de foco como en los inputs originales */
+  border: 2px solid #007BFF; 
 }
 
 button {
-  display: inline-block; /* Permite que estén en la misma línea si hay espacio */
-  margin: 10px 5px; /* Margen reducido para botones en línea */
+  display: inline-block; 
+  margin: 10px 5px; 
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #007BFF; /* Color primario */
+  background-color: #007BFF; 
   color: white;
   border: none;
   border-radius: 5px;
@@ -254,7 +297,7 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3; /* Oscurecer al pasar el ratón */
+  background-color: #0056b3; 
 }
 
 button:disabled {
@@ -262,9 +305,9 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Estilo para un botón secundario, como el de cerrar sesión */
+
 button.button-secondary {
-  background-color: #6c757d; /* Un gris para secundario */
+  background-color: #6c757d; 
 }
 
 button.button-secondary:hover {
@@ -272,7 +315,7 @@ button.button-secondary:hover {
 }
 
 .table-responsive {
-  overflow-x: auto; /* Para que la tabla sea responsive en pantallas pequeñas */
+  overflow-x: auto; 
 }
 
 table {
@@ -284,23 +327,23 @@ table {
 
 th,
 td {
-  border: 1px solid #ddd; /* Bordes más suaves */
-  padding: 12px; /* Más padding para legibilidad */
+  border: 1px solid #ddd; 
+  padding: 12px; 
   text-align: left;
 }
 
 th {
-  background-color: #007BFF; /* Cabecera con el color primario */
+  background-color: #007BFF; 
   color: white;
   font-weight: bold;
 }
 
 tr:nth-child(even) {
-  background-color: #f9f9f9; /* Zebra striping para filas pares */
+  background-color: #f9f9f9; 
 }
 
 tr:hover {
-  background-color: #f1f1f1; /* Efecto hover en filas */
+  background-color: #f1f1f1; 
 }
 
 /* Media query para mejorar la disposición en pantallas pequeñas */
@@ -313,7 +356,7 @@ tr:hover {
     padding: 1.5rem;
   }
   h1 {
-    font-size: 1.8rem; /* Ajustar tamaño de fuente */
+    font-size: 1.8rem; 
   }
   select, button {
     font-size: 15px;

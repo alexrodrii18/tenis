@@ -1,118 +1,404 @@
 <template>
-  <h2>Listado de Jugadores</h2>
+  <h1>Panel De Jugadores</h1>
+  <div class="btn-container">
+    <button @click="agregarJugador" class="btn-agregar">Añadir Jugador</button>
+    <button @click="cerrarSesion" class="btn-cerrar">Cerrar Sesión</button>
+  </div>
 
-  <button @click="agregarJugador" class="btn-agregar">Añadir Jugador</button>
+  <div class="grid">
+    <div class="card" v-for="jugador in jugadoresPaginados" :key="jugador.id">
+      <div class="content">
+        <svg fill="currentColor" viewBox="0 0 24 24">
+          <path
+            d="M20 9V5H4V9H20ZM20 11H4V19H20V11ZM3 3H21C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3ZM5 12H8V17H5V12ZM5 6H7V8H5V6ZM9 6H11V8H9V6Z">
+          </path>
+        </svg>
+        <p class="para"><strong>{{ jugador.nombre }}</strong></p>
+        <p class="para">Usuario: {{ jugador.usuario }}</p>
+        <p class="para">Contraseña: {{ jugador.password }}</p>
+        <p class="para">División ID: {{ jugador.division_id }}</p>
+        <div class="btn-actions">
+          <button class="Btn blue" @click="editarJugador(jugador.id)">
+            <svg class="svg" viewBox="0 0 512 512">
+              <path
+                d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0z" />
+            </svg>
+          </button>
+          <button class="Btn red" @click="eliminarJugador(jugador.id)">
+            <svg class="svg" viewBox="0 0 512 512">
+              <path
+                d="M96 464c0 26.5 21.5 48 48 48h224c26.5 0 48-21.5 48-48V128H96v336zm320-384h-80l-34-56H210l-34 56H96c-17.7 0-32 14.3-32 32v16h384v-16c0-17.7-14.3-32-32-32z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <table v-if="jugadores.length > 0">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Usuario</th>
-        <th>Contraseña</th>
-        <th>ID de División</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="jugador in jugadores" :key="jugador.id">
-        <td>{{ jugador.nombre }}</td>
-        <td>{{ jugador.usuario }}</td>
-        <td>{{ jugador.password }}</td>
-        <td>{{ jugador.division_id }}</td>
-        <td>
-          <!-- Se pasa el id del jugador en lugar del usuario -->
-          <button @click="editarJugador(jugador.id)">Editar</button>
-          <button @click="eliminarJugador(jugador.id)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p v-else>No hay jugadores disponibles.</p>
+  <div class="paginacion">
+    <div class="btn-paginacion-uiverse-wrapper">
+      <button
+        class="btn-paginacion-uiverse"
+        :disabled="paginaActual === 1"
+        @click="paginaActual--"
+      >
+        <div class="btn-box">
+          <span class="btn-elem">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                fill="black"
+                d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+              ></path>
+            </svg>
+          </span>
+          <span class="btn-elem">
+            <svg fill="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+              ></path>
+            </svg>
+          </span>
+        </div>
+      </button>
+    </div>
+    <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+    <div class="btn-paginacion-uiverse-wrapper">
+      <button
+        class="btn-paginacion-uiverse"
+        :disabled="paginaActual === totalPaginas"
+        @click="paginaActual++"
+      >
+        <div class="btn-box">
+          <span class="btn-elem">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg);">
+              <path
+                fill="black"
+                d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+              ></path>
+            </svg>
+          </span>
+          <span class="btn-elem">
+            <svg fill="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg);">
+              <path
+                d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+              ></path>
+            </svg>
+          </span>
+        </div>
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 const jugadores = ref([]);
+const paginaActual = ref(1);
+const jugadoresPorPagina = 10;
 
-// Cargar jugadores cuando el componente se monte
+const jugadoresPaginados = computed(() => {
+  const inicio = (paginaActual.value - 1) * jugadoresPorPagina;
+  return jugadores.value.slice(inicio, inicio + jugadoresPorPagina);
+});
+
+const totalPaginas = computed(() =>
+  Math.ceil(jugadores.value.length / jugadoresPorPagina)
+);
+
+const cerrarSesion = () => {
+  localStorage.removeItem('nombreUsuario');
+  localStorage.removeItem('userId');
+  localStorage.removeItem('rol');
+  router.push('/');
+};
+
+if (localStorage.getItem('rol') !== 'admin') {
+  toast.error('Acceso denegado. Solo los administradores pueden acceder a esta página.');
+  router.push('/');
+}
+
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:3000/jugadores');
+    const response = await axios.get('http://localhost:3000/api/jugadores');
     jugadores.value = response.data;
   } catch (error) {
-    alert('Error al cargar jugadores: ' + error.message);
+    toast.error('Error al cargar jugadores: ' + error.message);
   }
 });
 
-// Redirige a la vista de editar jugador pasando el id como parámetro
 const editarJugador = (id) => {
   router.push({ name: 'editarJugador', params: { id } });
 };
 
-// Eliminar jugador por su id
 const eliminarJugador = async (id) => {
-  const confirmacion = confirm('¿Estás seguro de que deseas eliminar este jugador?');
-  if (confirmacion) {
+  if (confirm('¿Estás seguro de que deseas eliminar este jugador?')) {
     try {
-      const response = await axios.delete(`http://localhost:3000/jugadores/${id}`);
-      alert(response.data.message);
-      // Refrescar la lista de jugadores
-      jugadores.value = jugadores.value.filter(jugador => jugador.id !== id);
+      await axios.delete(`http://localhost:3000/api/jugadores/${id}`);
+      jugadores.value = jugadores.value.filter(j => j.id !== id);
+      toast.success('Jugador eliminado con éxito.');
     } catch (error) {
-      alert('Error al eliminar jugador: ' + error.message);
+      toast.error('Error al eliminar jugador: ' + error.message);
     }
   }
 };
 
-// Redirige a la página de agregar jugador
 const agregarJugador = () => {
   router.push('/admin/agregar-jugador');
 };
 </script>
 
-<style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  padding: 10px;
-  text-align: left;
-  border: 1px solid #ddd;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-button {
-  padding: 5px 10px;
-  margin: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #007BFF;
+<style>
+h1, .titulo-panel {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
   color: white;
+  letter-spacing: 1.5px;
+  text-shadow: 2px 2px #00000030;
+  text-align: center;
 }
 
-.btn-agregar {
-  padding: 10px 15px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  cursor: pointer;
+body {
+background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+
+}
+
+.btn-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
-.btn-agregar:hover {
-  background-color: #218838;
+.btn-agregar{
+  padding: 10px 15px;
+  font-weight: bold;
+  border: none;
+  background: #0a1aff;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-cerrar {
+  padding: 10px 15px;
+  font-weight: bold;
+  border: none;
+  background: #ff0a0a;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-agregar:hover,
+.btn-cerrar:hover {
+  background-color: #fea000;
+  color: white;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 32px;
+  justify-items: center;
+  padding: 20px;
+}
+
+
+.card {
+  width: 260px;
+  height: 360px;
+  border-radius: 20px;
+  padding: 20px;
+  transition: transform 0.4s ease;
+}
+
+.content {
+  padding: 20px;
+  border-radius: 20px;
+  background: #0a6cff;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.content::before,
+.content::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: inherit;
+  z-index: -1;
+  transition: all 0.48s ease;
+}
+
+.content::before {
+  top: -4%;
+  width: 90%;
+  height: 90%;
+  background: #ced8ff;
+}
+
+.content::after {
+  top: -8%;
+  width: 80%;
+  height: 80%;
+  background: #e7ecff;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card:hover .content::before {
+  rotate: -8deg;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
+
+.content svg {
+  width: 32px;
+  height: 32px;
+}
+
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 30px 0;
+}
+
+.Btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100px;
+  height: 36px;
+  border: none;
+  padding: 0px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 5px 5px 0px;
+  transition-duration: 0.3s;
+  color: white;
+}
+
+.Btn .svg {
+  width: 13px;
+  position: absolute;
+  right: 0;
+  margin-right: 20px;
+  fill: white;
+  transition-duration: 0.3s;
+}
+
+.Btn:hover {
+  color: transparent;
+}
+
+.Btn:hover .svg {
+  right: 43%;
+  margin: 0;
+}
+
+.Btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0px;
+}
+
+.Btn.blue {
+  background-color: rgb(0, 122, 255);
+  box-shadow: 5px 5px 0px rgb(0, 90, 200);
+}
+
+.Btn.red {
+  background-color: rgb(255, 38, 38);
+  box-shadow: 5px 5px 0px rgb(200, 0, 0);
+}
+
+.btn-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse {
+  display: block;
+  position: relative;
+  width: 76px;
+  height: 76px;
+  margin: 0;
+  overflow: hidden;
+  outline: none;
+  background-color: transparent;
+  cursor: pointer;
+  border: 0;
+}
+
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  inset: 7px;
+  border: 3px solid black;
+  transition: opacity 0.4s ease 80ms, transform 0.5s ease 80ms;
+}
+
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  inset: 7px;
+  border: 4px solid #ffffff;
+  transform: scale(1.3);
+  transition: opacity 0.4s ease, transform 0.5s ease;
+  opacity: 0;
+}
+
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:hover:before,
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:focus:before {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:hover:after,
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:focus:after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.btn-paginacion-uiverse-wrapper .btn-box {
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.btn-paginacion-uiverse-wrapper .btn-elem {
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin: 24px 18px 0 22px;
+  fill: #f0eeef;
+}
+
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:hover .btn-box,
+.btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:focus .btn-box {
+  transition: 0.4s;
+  transform: translateX(-69px);
 }
 </style>

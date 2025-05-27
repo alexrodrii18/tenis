@@ -29,19 +29,28 @@ router.get("/:id", async (req, res) => {
 });
 
 // Crear un nuevo jugador
+
 router.post("/", async (req, res) => {
   try {
-    const { nombre, usuario, division_id } = req.body;
+    const { nombre, usuario, password, division_id, rol } = req.body;
+
+   if (!nombre || !usuario || !password || typeof division_id !== 'number' || !rol) {
+
+      return res.status(400).json({ error: "Faltan campos obligatorios" });
+    }
+
     const [result] = await db.query(
-      "INSERT INTO usuarios (nombre, usuario, division_id) VALUES (?, ?, ?)",
-      [nombre, usuario, division_id]
+      "INSERT INTO usuarios (nombre, usuario, password, division_id, rol) VALUES (?, ?, ?, ?, ?)",
+      [nombre, usuario, password, division_id, rol]
     );
 
     res.json({ message: "Jugador creado con éxito", id: result.insertId });
   } catch (err) {
+    console.error(err); // 👈 Muy útil para ver errores en consola
     res.status(500).json({ error: err.message });
   }
 });
+
 
 router.post('/registro', async (req, res) => {
   try {
@@ -56,7 +65,7 @@ router.post('/registro', async (req, res) => {
       return res.status(409).json({ error: 'El usuario ya existe' });
     }
 
-// Insertar usuario en BD sin hash
+
 const [result] = await db.query(
   'INSERT INTO usuarios (nombre, usuario, password, division_id, rol) VALUES (?, ?, ?, ?, ?)',
   [nombre, usuario, password, division, rol]

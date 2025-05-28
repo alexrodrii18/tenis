@@ -68,7 +68,7 @@ const agregarJugador = async () => {
     console.error(error);
     toast.error("Error al añadir jugador: " + (error.response?.data?.error || error.message));
   }
-};
+}
 </script>
 
 <style scoped>

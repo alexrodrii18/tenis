@@ -1,5 +1,5 @@
 <template>
-  <h1>Panel De Jugadores</h1>
+  <h1>Listado de jugadores</h1>
   <div class="btn-container">
     <button @click="agregarJugador" class="btn-agregar">Añadir Jugador</button>
     <button @click="cerrarSesion" class="btn-cerrar">Cerrar Sesión</button>
@@ -88,6 +88,10 @@
       </button>
     </div>
   </div>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 Gestión de reservas tenis. Todos los derechos reservados.</p>
+  </footer>
 </template>
 
 <script setup>
@@ -153,9 +157,81 @@ const agregarJugador = () => {
 </script>
 
 <style>
+/* ... (todos tus estilos anteriores: h1, body, btn-container, etc. se mantienen) ... */
+
+/* === INICIO: Estilos MODIFICADOS para .grid y .card === */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 30px; /* Aumentada la separación entre tarjetas a 30px */
+  justify-items: center;
+  padding: 20px;
+  width: 100%;
+  /* Nuevo max-width calculado para 5 tarjetas de 280px con gap de 30px:
+     (280px * 5) + (30px * 4) + (20px * 2) = 1400px + 120px + 40px = 1560px
+  */
+  max-width: 1560px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  flex-grow: 1;
+}
+
+.card {
+  width: 280px;  /* Ancho de tarjeta aumentado */
+  height: 390px; /* Altura de tarjeta aumentada */
+  border-radius: 15px;
+  padding: 0;
+  transition: transform 0.4s ease;
+}
+
+/* El estilo de .content se mantiene como en la última versión (con gap: 14px),
+   ya que al agrandar la tarjeta, el contenido tendrá más espacio naturalmente.
+   Si ves que necesita más padding o gap interno, puedes ajustarlo aquí.
+*/
+.content {
+  padding: 20px;
+  border-radius: 15px;
+  background: #FFFFFF;
+  color: #333745;
+  display: flex;
+  flex-direction: column;
+  gap: 14px; /* Mantenemos el gap interno, revisa si quieres más con tarjetas grandes */
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+
+/* Media Queries para responsividad del grid (breakpoint y minmax ajustados) */
+@media (max-width: 1559px) { /* Justo debajo del nuevo max-width calculado (1560px) */
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Actualizado el minmax al nuevo ancho de tarjeta */
+    max-width: none;
+  }
+}
+
+@media (max-width: 630px) { /* Ajustado ligeramente el breakpoint para una sola columna
+                              (280px * 2) + 30px_gap + 40px_padding = 560 + 30 + 40 = 630px
+                              Por debajo de esto, es mejor una sola columna. */
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 20px; /* Puedes mantener el gap anterior o reducirlo un poco más */
+    padding: 15px;
+  }
+  .content {
+    gap: 12px;
+    padding: 15px;
+  }
+}
+/* === FIN: Estilos MODIFICADOS para .grid y .card === */
+
+
+/* === INICIO: Estilos existentes que no cambian (colócalos en el orden que los tenías) === */
 h1, .titulo-panel {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px;
+  font-size: 50px;
   color: white;
   letter-spacing: 1.5px;
   text-shadow: 2px 2px #00000030;
@@ -163,8 +239,11 @@ h1, .titulo-panel {
 }
 
 body {
-background: linear-gradient(to bottom right, #1e3c72, #2a5298);
-
+  background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .btn-container {
@@ -178,7 +257,7 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   padding: 10px 15px;
   font-weight: bold;
   border: none;
-  background: #0a1aff;
+  background: #5D9CEC;
   color: white;
   border-radius: 8px;
   cursor: pointer;
@@ -187,7 +266,7 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   padding: 10px 15px;
   font-weight: bold;
   border: none;
-  background: #ff0a0a;
+  background: #EF5350;
   color: white;
   border-radius: 8px;
   cursor: pointer;
@@ -199,35 +278,7 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   color: white;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 32px;
-  justify-items: center;
-  padding: 20px;
-}
-
-
-.card {
-  width: 260px;
-  height: 360px;
-  border-radius: 20px;
-  padding: 20px;
-  transition: transform 0.4s ease;
-}
-
-.content {
-  padding: 20px;
-  border-radius: 20px;
-  background: #0a6cff;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: relative;
-  overflow: hidden;
-  height: 100%;
-}
+/* .content ya está definido arriba con sus estilos actuales */
 
 .content::before,
 .content::after {
@@ -236,7 +287,7 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   left: 50%;
   transform: translateX(-50%);
   border-radius: inherit;
-  z-index: -1;
+  z-index: 0;
   transition: all 0.48s ease;
 }
 
@@ -244,18 +295,18 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   top: -4%;
   width: 90%;
   height: 90%;
-  background: #ced8ff;
+  background: #E3F2FD;
 }
 
 .content::after {
   top: -8%;
   width: 80%;
   height: 80%;
-  background: #e7ecff;
+  background: #F4F8FB;
 }
 
 .card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-8px);
 }
 
 .card:hover .content::before {
@@ -265,11 +316,26 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   height: 100%;
 }
 
-
+.content > svg, .content > .para, .content > .btn-actions {
+  position: relative;
+  z-index: 1;
+}
 
 .content svg {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
+  color: #5D9CEC;
+  margin-bottom: 5px;
+}
+
+.para {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.para strong {
+  font-size: 1.1rem;
+  color: #2c3e50;
 }
 
 .paginacion {
@@ -278,6 +344,8 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   align-items: center;
   gap: 16px;
   margin: 30px 0;
+  padding: 10px 0;
+  color: white;
 }
 
 .Btn {
@@ -285,15 +353,16 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 100px;
-  height: 36px;
+  width: auto;
+  min-width: 90px;
+  height: 38px;
   border: none;
-  padding: 0px 20px;
+  padding: 0px 15px;
   font-weight: 500;
   cursor: pointer;
-  border-radius: 10px;
-  box-shadow: 5px 5px 0px;
-  transition-duration: 0.3s;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
   color: white;
 }
 
@@ -301,41 +370,44 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
   width: 13px;
   position: absolute;
   right: 0;
-  margin-right: 20px;
+  margin-right: 15px;
   fill: white;
   transition-duration: 0.3s;
 }
 
 .Btn:hover {
   color: transparent;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .Btn:hover .svg {
-  right: 43%;
+  right: calc(50% - 6.5px);
   margin: 0;
 }
 
 .Btn:active {
-  transform: translate(3px, 3px);
-  box-shadow: 2px 2px 0px;
+  transform: translate(1px, 1px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .Btn.blue {
-  background-color: rgb(0, 122, 255);
-  box-shadow: 5px 5px 0px rgb(0, 90, 200);
+  background-color: #5D9CEC;
 }
 
 .Btn.red {
-  background-color: rgb(255, 38, 38);
-  box-shadow: 5px 5px 0px rgb(200, 0, 0);
+  background-color: #EF5350;
 }
 
 .btn-actions {
   display: flex;
+  justify-content: space-around;
   gap: 10px;
   margin-top: auto;
+  padding-top: 10px;
 }
 
+/* ... (resto de estilos de paginación y footer sin cambios) ... */
 .btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse {
   display: block;
   position: relative;
@@ -400,5 +472,20 @@ background: linear-gradient(to bottom right, #1e3c72, #2a5298);
 .btn-paginacion-uiverse-wrapper .btn-paginacion-uiverse:focus .btn-box {
   transition: 0.4s;
   transform: translateX(-69px);
+}
+
+.site-footer {
+  background-color: #182A4C;
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  margin-top: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 0.9em;
 }
 </style>

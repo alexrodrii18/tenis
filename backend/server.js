@@ -34,9 +34,10 @@ const jugadoresRoutes = require("./routes/jugadores");
 app.use("/api/jugadores", jugadoresRoutes);
 
 
-app.get("/", (res) => {
+app.get("/", (req, res) => {
   res.send("Servidor funcionando correctamente");
 });
+
 
 // Iniciar el servidor
 app.listen(PORT, () => {

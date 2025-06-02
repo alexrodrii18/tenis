@@ -4,7 +4,7 @@ const cors = require("cors");
 const pool = require("./db");
 
 const app = express();
-const PORT = process.env.PORT
+const port = process.env.PORT || 4000
 
 // Configuración de CORS para permitir solicitudes desde localhost:5173 (tu frontend Vue)
 const corsOptions = {
@@ -40,8 +40,8 @@ app.get("/", (req, res) => {
 
 
 // Iniciar el servidor
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+app.listen(port, () => {
+  console.log(`🚀 Servidor corriendo en el puerto ${port}`);
 });
 
 
